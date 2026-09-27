@@ -1,0 +1,16 @@
+# Local credentials and session data
+.env
+.env.*
+!.env.example
+session*.json
+cookies*.json
+private-data/
+.local/
+*.har
+
+# Python
+__pycache__/
+.venv/
+*.py[cod]
+.DS_Store
+Thumbs.db
