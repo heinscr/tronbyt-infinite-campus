@@ -12,7 +12,8 @@ left-aligned columns, with extra pages for longer days. Non-school days show
 
 ![Example Monday schedules for fictional students Alex and Jamie](docs/sample-schedule.png)
 
-*Illustrative screens with fictional names. The app alternates between children
+*Illustrative screens with fictional names. Classes read down the left column,
+then down the right column. The app alternates between children
 every five seconds.*
 
 ## Requirements
