@@ -6,7 +6,8 @@ or background service is required after installation.
 
 Each child gets a five-second screen with their name and weekday above a
 two-column list of period labels and class abbreviations. It shows up to eight
-classes per screen, with extra pages for longer days. Non-school days show
+classes per screen, filling top to bottom, then left to right in two equal-width,
+left-aligned columns, with extra pages for longer days. Non-school days show
 “No classes.” Times are used for ordering, but are not displayed.
 
 ![Example Monday schedules for fictional students Alex and Jamie](docs/sample-schedule.png)

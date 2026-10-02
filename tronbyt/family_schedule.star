@@ -120,18 +120,20 @@ def abbreviation(course):
 def day_page(name, weekday, classes, color):
     header = render.Box(width = 64, height = 8, child = render.Text(name[:6] + " - " + weekday, font = "5x8", color = color))
     rows = []
+    # Balance the columns, reading down the left before the right.
+    column_rows = (len(classes) + 1) // 2
     for row in range(4):
         cells = []
         for col in range(2):
-            index = row * 2 + col
+            index = col * column_rows + row
             children = []
-            if index < len(classes):
+            if row < column_rows and index < len(classes):
                 item = classes[index]
                 children = [
                     render.Text(item["period"][:2] + " ", font = "CG-pixel-3x5-mono", height = 6, color = color),
                     render.Text(abbreviation(item["course"]), font = "CG-pixel-3x5-mono", height = 6, color = "#ffffff"),
                 ]
-            cells.append(render.Box(width = 32, height = 6, color = "#0b1718" if row % 2 == 0 else "#040908", child = render.Row(children = children)))
+            cells.append(render.Box(width = 32, height = 6, color = "#0b1718" if row % 2 == 0 else "#040908", child = render.Row(children = children, expanded = True, main_align = "start")))
         rows.append(render.Row(children = cells))
     if not classes:
         return render.Column(children = [header, render.Box(width = 64, height = 24, child = render.Text("No classes", font = "5x8", color = "#ffffff"))])
