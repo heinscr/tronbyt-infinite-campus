@@ -13,6 +13,7 @@ def get_schema():
         schema.Text(id = "campus_url", name = "Campus base URL", desc = "HTTPS URL ending in /campus/, not the full login-page URL.", icon = "gear"),
         schema.Text(id = "app_name", name = "District app name", desc = "The district slug in your portal URL (before .jsp).", icon = "gear"),
         schema.Text(id = "timezone", name = "School timezone", desc = "IANA timezone, for example America/New_York.", default = "UTC", icon = "gear"),
+        schema.Text(id = "display_time_seconds", name = "Display Time Seconds", desc = "Match Tronbyt's Display Time Seconds. Split evenly between children, including their extra pages.", default = "20", icon = "gear"),
         schema.Text(id = "username", name = "Campus username", desc = "Your Campus Parent username.", icon = "user"),
         schema.Text(id = "password", name = "Campus password", desc = "Stored in this private app configuration on your Tronbyt server.", icon = "key"),
     ])
@@ -147,11 +148,25 @@ def main(config):
     students = fetch_day(config, day)
     if type(students) == "dict":
         return error_screen(students["error"])
+    duration = str(config.get("display_time_seconds") or "20")
+    for pos in range(len(duration)):
+        if duration[pos] not in "0123456789":
+            return error_screen("Invalid duration")
+    if int(duration) < 1:
+        return error_screen("Invalid duration")
+    # 100 ms frames keep rounding within one tick while giving each child
+    # equal time regardless of how many pages their schedule needs.
+    total_ticks = max(int(duration) * 10, len(students))
     pages = []
     for i, student in enumerate(students):
         color = "#80e5b4" if i % 2 == 0 else "#8bbfff"
         # Preserve the day's chronological order; overflow gets another screen.
         classes = student["classes"]
-        for offset in range(0, max(1, len(classes)), 8):
-            pages.append(day_page(student["name"], now.format("Mon"), classes[offset:offset + 8], color))
-    return render.Root(child = render.Animation(children = pages), delay = 5000, max_age = 180, show_full_animation = True)
+        page_count = (max(1, len(classes)) + 7) // 8
+        child_ticks = ((i + 1) * total_ticks // len(students)) - (i * total_ticks // len(students))
+        for page in range(page_count):
+            offset = page * 8
+            widget = day_page(student["name"], now.format("Mon"), classes[offset:offset + 8], color)
+            ticks = ((page + 1) * child_ticks // page_count) - (page * child_ticks // page_count)
+            pages.extend([widget] * max(1, ticks))
+    return render.Root(child = render.Animation(children = pages), delay = 100, max_age = 180, show_full_animation = True)

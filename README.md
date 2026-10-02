@@ -4,7 +4,7 @@ A native Tronbyt app that displays children's daily Infinite Campus schedules
 on a 64×32 Tidbyt. Everything runs on your Tronbyt server; no separate computer
 or background service is required after installation.
 
-Each child gets a five-second screen with their name and weekday above a
+Each child gets an equal share of the configured display time, with their name and weekday above a
 two-column list of period labels and class abbreviations. It shows up to eight
 classes per screen, filling top to bottom, then left to right in two equal-width,
 left-aligned columns, with extra pages for longer days. Non-school days show
@@ -14,7 +14,7 @@ left-aligned columns, with extra pages for longer days. Non-school days show
 
 *Illustrative screens with fictional names. Classes read down the left column,
 then down the right column. The app alternates between children
-every five seconds.*
+every ten seconds when Display Time Seconds is 20 and there are two children.*
 
 ## Requirements
 
@@ -41,11 +41,20 @@ are not supported.
    | Campus base URL | `https://school.example/campus/` |
    | District app name | `district` for a login URL ending in `/portal/parents/district.jsp` |
    | School timezone | An IANA timezone such as `America/New_York` |
+   | Display Time Seconds | Match the app's Tronbyt display time, for example `20` |
    | Campus username/password | Your own Campus Parent login |
 
 4. Set the render interval to **1 minute**, display duration to **20 seconds**,
    and enable **Show full animation**.
 5. Save and check the preview.
+
+Each child's schedule shows for **Display Time Seconds / number of children**:
+20 seconds with two children gives each child 10 seconds. Extra pages split that
+child's share evenly. Timing is rounded to 100 milliseconds; each page gets at
+least 100 milliseconds. Use a positive whole number of seconds.
+
+Tronbyt does not expose its display time to app scripts, so keep the app setting
+and Tronbyt's **Display Time Seconds** equal when changing the duration.
 
 For a portal URL like
 `https://school.example/campus/portal/parents/district.jsp`, the base URL is

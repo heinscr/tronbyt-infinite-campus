@@ -80,7 +80,7 @@ def main():
         'enabled':True, 'uinterval':1, 'display_time':20, 'show_full_animation':'true',
         'config':{'username':client.config['IC_USERNAME'],'password':client.config['IC_PASSWORD'],
                   'campus_url':client.config['IC_CAMPUS_URL'], 'app_name':client.config['IC_APP_NAME'],
-                  'timezone':client.config['IC_TIMEZONE']},
+                  'timezone':client.config['IC_TIMEZONE'], 'display_time_seconds':'20'},
     }).encode(), {'Content-Type':'application/json'})
     print('Family Schedule uploaded and configured. Check its preview in Tronbyt.')
     print('Configuration:',client.base+'/devices/'+client.device+'/'+installation+'/config')

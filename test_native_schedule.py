@@ -117,6 +117,41 @@ class NativeScheduleTests(unittest.TestCase):
         env['fetch_day'](second, '2026-09-28')
         self.assertEqual(http.logins, 2)
 
+    def test_display_time_shared_between_children_and_overflow_pages(self):
+        env, _ = load_app([])
+        env['time'] = SimpleNamespace(now=lambda: SimpleNamespace(in_location=lambda tz:
+            SimpleNamespace(format=lambda f: 'Mon' if f == 'Mon' else '2026-09-28')))
+        env['render'] = SimpleNamespace(Animation=lambda **kw: kw, Root=lambda **kw: kw)
+        env['day_page'] = lambda name, weekday, classes, color: (name, len(classes))
+        env['fetch_day'] = lambda config, day: [
+            {'name': 'Alex', 'classes': [{}] * 9},
+            {'name': 'Jamie', 'classes': [{}] * 6},
+        ]
+        for seconds in (20, 30):
+            with self.subTest(seconds=seconds):
+                result = env['main'](dict(config(), display_time_seconds=str(seconds)))
+                frames = result['child']['children']
+                delay = result['delay']
+                self.assertEqual(len(frames) * delay, seconds * 1000)
+                for name in ('Alex', 'Jamie'):
+                    self.assertEqual(sum(frame[0] == name for frame in frames) * delay,
+                                     seconds * 1000 // 2)
+                self.assertEqual(frames.count(('Alex', 8)), frames.count(('Alex', 1)))
+
+    def test_display_time_rounding_and_default(self):
+        env, _ = load_app([])
+        env['time'] = SimpleNamespace(now=lambda: SimpleNamespace(in_location=lambda tz:
+            SimpleNamespace(format=lambda f: 'Mon' if f == 'Mon' else '2026-09-28')))
+        env['render'] = SimpleNamespace(Animation=lambda **kw: kw, Root=lambda **kw: kw)
+        env['day_page'] = lambda name, *args: name
+        env['fetch_day'] = lambda config, day: [
+            {'name': name, 'classes': []} for name in ('Alex', 'Jamie', 'Sam')]
+        result = env['main'](config())
+        frames = result['child']['children']
+        self.assertEqual(len(frames) * result['delay'], 20000)
+        counts = [frames.count(name) for name in ('Alex', 'Jamie', 'Sam')]
+        self.assertLessEqual(max(counts) - min(counts), 1)
+
     def test_credentials_not_sent_to_http(self):
         env, http = load_app([])
         result = env['fetch_day'](dict(config(), campus_url='http://school.example/campus/'), '2026-09-28')
